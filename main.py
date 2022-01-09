@@ -10,7 +10,7 @@ vk = vk.get_api()
 global servers, targets
 
 try:
-    with open("servers.txt", "r") as read:
+    with open("servers.py", "r") as read:
         servers=eval(read.readline())
         if servers=="": servers={'9184A500': (0, ['9184A501', '9184A502', '9184A503'])}
         try:
@@ -58,10 +58,18 @@ def get_known(lst):
         else:
             text+="&#10060;\n"
     return text
+
+def get_ends():
+    global servers
+    ends=[]
+    for i in servers:
+        if servers[i][1]==[]:
+            ends.append(i)
+    return ends
 def request(msg):
     global servers, targets
     def write_file():
-        with open("servers.txt", "w") as f:
+        with open("servers.py", "w") as f:
             f.write(str(servers))
             f.write('\n' + str(targets))
     for message in msg['fwd_messages']:
@@ -102,6 +110,17 @@ def request(msg):
         vk.messages.send(peer_id=msg['peer_id'], message=text, random_id=0)
     elif lst[0]=='/k':
         vk.messages.send(peer_id=msg['peer_id'], message=get_known(targets), random_id=0)
+    elif lst[0]=='/e':
+        ends=get_ends()
+        vk.messages.send(peer_id=msg['peer_id'], message=f"Total: {len(ends)}\n"+"\n".join(ends), random_id=0)
+    elif lst[0]=='/we' and len(lst)==2:
+        start=lst[1]
+        if start not in servers: return
+        ends=get_ends()
+        text=""
+        for i in ends:
+            text += '- ' * 5 + i + ' -' * 5 + '\n' + find_short_way(start, i) + '\n\n'
+        vk.messages.send(peer_id=msg['peer_id'], message=text, random_id=0)
     elif msg['text'].lower()=='/reset' and msg['from_id'] in [211586351, 298149825,195575331]:
         servers={'9184A500': (0, ['9184A501', '9184A502', '9184A503'])}
         targets=[]

@@ -23,7 +23,8 @@ except:
 
 try:
     longpoll.ts=int(vk.storage.get(key="key", user_id=298149825))
-except:
+except Exception as e:
+    print(e)
     longpoll.ts=None
 
 def find_short_way(start,goal):

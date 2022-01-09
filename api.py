@@ -12,6 +12,7 @@ def update_main(targets):
 
 def send_new(servers, i):
      for j in servers[i][1]:
+         print(f"{i} to {j}")
          print(requests.post("https://n1ce.me/hw/api/connect",
                              data={"from": i, "to": j}).text)
 def do_connects(servers):

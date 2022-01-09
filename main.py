@@ -142,6 +142,7 @@ def request(msg):
         servers={'9184A500': (0, ['9184A501', '9184A502', '9184A503'])}
         targets=[]
         api.delete_data()
+        api.do_connects(servers)
         vk.messages.send(peer_id=msg['peer_id'], message='Все сервера удалены', random_id=0)
     elif lst[0]=="/update" and msg['from_id'] in [211586351, 298149825, 120358503]:
         threading.Thread(target=update).start()

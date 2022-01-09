@@ -86,6 +86,9 @@ def request(msg):
         with open("servers.py", "w") as f:
             f.write(str(servers))
             f.write('\n' + str(targets))
+        os.system('git add *.py')
+        os.system('git commit -m "Back up"')
+        os.system("git push https://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@github.com/qbt29/hwevents.git")
     unique=0
     for message in msg['fwd_messages']:
         text,from_id,date=message['text'],message['from_id'],message['date']

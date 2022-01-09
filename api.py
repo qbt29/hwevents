@@ -1,6 +1,6 @@
 import requests, threading
 
-def bidata(servers):
+def bigdata(servers):
     params={"bigdata":str(servers)}
     response=requests.post("https://n1ce.me/hw/api/bigdata", data=params)
     return response.text

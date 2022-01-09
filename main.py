@@ -76,6 +76,9 @@ def get_ends():
 def request(msg):
     global servers, targets
     def write_file():
+        api.add(list(servers.keys()))
+        api.update_data(servers)
+        api.update_main(targets)
         with open("servers.py", "w") as f:
             f.write(str(servers))
             f.write('\n' + str(targets))
@@ -91,13 +94,11 @@ def request(msg):
                     continue
             servers[server]=date, ways
             for i in ways:
-                api.send_new(servers, i)
                 if i not in servers:
                     servers[i]=(0, [])
             write_file()
         elif len(find)==16:
             targets=find.copy()
-            api.update_main(targets)
             write_file()
     lst = msg['text'].split()
     if len(lst)==0: return
@@ -146,7 +147,7 @@ def chat_reqs(reqs):
 def main():
     reqs={}
     while True:
-        # try:
+        try:
             for event in longpoll.check():
                 if event.type == VkBotEventType.MESSAGE_NEW:
                     if event.obj['message']['peer_id'] not in reqs:
@@ -157,10 +158,10 @@ def main():
                 threading.Thread(target=chat_reqs(reqs[i].copy())).start()
             reqs={}
             vk.storage.set(user_id=298149825, key="key", value=str(longpoll.ts))
-        # except Exception as e:
-        #     print("Error:", e)
+        except Exception as e:
+            print("Error:", e)
 
-api.update_data(servers)
-api.update_main(targets)
-main()
+# api.update_data(servers)
+# api.update_main(targets)
+# main()
 

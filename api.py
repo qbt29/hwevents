@@ -11,14 +11,25 @@ def update_main(targets):
 
 def send_new(servers, i):
      for j in servers[i][1]:
-        requests.post("https://n1ce.me/hw/api/connect:443",
-                                    data={"from": i, "to": j})
+         print(requests.post("https://n1ce.me/hw/api/connect:443",
+                             data={"from": i, "to": j}).text)
 def do_connects(servers):
     for i in servers.keys():
         threading.Thread(target=send_new, args=(servers,i,)).start()
 
-def delete_data():
-    response = requests.delete("https://n1ce.me/hw/api/clear")
-
 def get_data():
     response=requests.get("https://n1ce.me/hw/api/data")
+    return response.text
+
+def add(servers:list):
+    response=requests.post("https://n1ce.me/hw/api/add", data={"ids":servers})
+    return response.text
+
+def delete_data():
+    response = requests.delete("https://n1ce.me/hw/api/clear")
+    return response.text
+
+def drop():
+    response = requests.delete("https://n1ce.me/hw/api/drop")
+    return response.text
+

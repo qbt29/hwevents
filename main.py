@@ -125,6 +125,9 @@ def request(msg):
     elif lst[0]=='/e':
         ends=get_ends()
         vk.messages.send(peer_id=msg['peer_id'], message=f"Total: {len(ends)}\n"+"\n".join(ends), random_id=0)
+    elif lst[0]=='/info' and len(lst)==2:
+        if lst[1] not in servers: return
+        vk.messages.send(peer_id=msg['peer_id'], message=f"Connects {lst[1]}\n:"+ '\n'.join(servers[lst[1]][1]), random_id=0)
     elif lst[0]=='/we' and len(lst)==2:
         start=lst[1]
         if start not in servers: return

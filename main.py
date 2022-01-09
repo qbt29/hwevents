@@ -29,6 +29,8 @@ except:
 
 def find_short_way(start,goal):
     global servers
+    if start not in servers: start=header+start
+    if goal not in servers: goal=header+goal
     queue = deque([start])
     visited = {start: None}
 
@@ -107,16 +109,17 @@ def request(msg):
     lst = msg['text'].split()
     if len(lst)==0: return
     if lst[0]=='/w' and len(lst)==3:
-            vk.messages.send(peer_id=msg['peer_id'], message=find_short_way(lst[1],lst[2]), random_id=0)
+            vk.messages.send(peer_id=msg['peer_id'], message=find_short_way(lst[1].upper(),lst[2].upper()), random_id=0)
     elif lst[0]=='/t' and len(lst)==2:
-        start=lst[1]
-        if start not in servers:
+        start=lst[1].upper()
+        if start not in servers and header+start not in servers:
             vk.messages.send(peer_id=msg['peer_id'], message='No way', random_id=0)
             return
         if targets==[]:
             vk.messages.send(peer_id=msg['peer_id'], message='No data', random_id=0)
             return
         text=""
+        if start not in servers: start=header+start
         for i in targets:
             text+='- '*5+i+' -'*5+'\n'+find_short_way(start, i)+'\n\n'
         vk.messages.send(peer_id=msg['peer_id'], message=text, random_id=0)
@@ -129,8 +132,9 @@ def request(msg):
         if lst[1] not in servers: return
         vk.messages.send(peer_id=msg['peer_id'], message=f"Connects {lst[1]}:\n"+ '\n'.join(servers[lst[1]][1]), random_id=0)
     elif lst[0]=='/we' and len(lst)==2:
-        start=lst[1]
-        if start not in servers: return
+        start=lst[1].upper()
+        if start not in servers and header+start not in servers: return
+        if start not in servers: start=header+start
         ends=get_ends()
         text=""
         for i in ends:

@@ -21,6 +21,11 @@ try:
 except:
     servers={'9184A500': (0, ['9184A501', '9184A502', '9184A503'])}
 
+try:
+    longpoll.ts=int(vk.storage.get(key="key", user_id=298149825))
+except:
+    longpoll.ts=None
+
 def find_short_way(start,goal):
     global servers
     queue = deque([start])
@@ -66,6 +71,7 @@ def get_ends():
         if servers[i][1]==[]:
             ends.append(i)
     return ends
+
 def request(msg):
     global servers, targets
     def write_file():
@@ -149,6 +155,7 @@ def main():
             for i in reqs.keys():
                 threading.Thread(target=chat_reqs(reqs[i].copy())).start()
             reqs={}
+            vk.storage.set(user_id=298149825, key="key", value=longpoll.ts)
         except Exception as e:
             print("Error:", e)
 

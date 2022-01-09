@@ -2,12 +2,12 @@ import requests, threading
 
 def update_data(servers):
     params={"bigdata":str(servers)}
-    response=requests.post("https://n1ce.me/hw/api/bigdata", data=params).text
+    response=requests.post("https://n1ce.me/hw/api/bigdata", data=params)
     return response.text
 
 def update_main(targets):
     params = {"list": ",".join(targets)}
-    response=requests.post("https://n1ce.me/hw/api/main", data=params).text
+    response=requests.post("https://n1ce.me/hw/api/main", data=params)
     return response.text
 def send_new(servers, i):
      for j in servers[i][1]:

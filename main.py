@@ -76,9 +76,6 @@ def get_ends():
 def request(msg):
     global servers, targets
     def write_file():
-        api.add(list(servers.keys()))
-        api.update_data(servers)
-        api.update_main(targets)
         with open("servers.py", "w") as f:
             f.write(str(servers))
             f.write('\n' + str(targets))
@@ -96,9 +93,11 @@ def request(msg):
             for i in ways:
                 if i not in servers:
                     servers[i]=(0, [])
+            api.send_new(servers, server)
             write_file()
         elif len(find)==16:
             targets=find.copy()
+            api.update_main(targets)
             write_file()
     lst = msg['text'].split()
     if len(lst)==0: return
@@ -162,9 +161,7 @@ def main():
             print("Error:", e)
 def update():
     global servers, targets
-    print(api.add(list(servers.keys())))
     print(api.update_data(servers))
     print(api.update_main(targets))
 threading.Thread(target=update).start()
 main()
-

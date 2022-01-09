@@ -1,14 +1,14 @@
 import requests, threading
 
 def update_data(servers):
-    requests.get("https://vk.com")
     params={"bigdata":str(servers)}
-    return requests.post("https://n1ce.me/hw/api/bigdata", data=params)
+    response=requests.post("https://n1ce.me/hw/api/bigdata", data=params).text
+    return response.text
 
 def update_main(targets):
     params = {"list": ",".join(targets)}
-    return requests.post("https://n1ce.me/hw/api/main", data=params)
-
+    response=requests.post("https://n1ce.me/hw/api/main", data=params).text
+    return response.text
 def send_new(servers, i):
      for j in servers[i][1]:
          print(requests.post("https://n1ce.me/hw/api/connect:443",

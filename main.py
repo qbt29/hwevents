@@ -76,7 +76,7 @@ def get_ends():
 def update():
     global servers, targets
     print(api.update_main(targets))
-    api.do_connects(servers.copy())
+    print(api.bidata(servers))
 
 def request(msg):
     global servers, targets
@@ -135,7 +135,7 @@ def request(msg):
         vk.messages.send(peer_id=msg['peer_id'], message=text, random_id=0)
     elif lst[0]=='/help':
         vk.messages.send(peer_id=msg['peer_id'], message=helps, random_id=0)
-    elif lst[0].lower()=='/reset' and msg['from_id'] in [211586351, 298149825,195575331]:
+    elif lst[0].lower()=='/reset' and msg['from_id'] in [211586351, 298149825, 120358503, 195575331]:
         servers={'9184A500': (0, ['9184A501', '9184A502', '9184A503'])}
         targets=[]
         api.delete_data()

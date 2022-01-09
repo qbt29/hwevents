@@ -15,7 +15,7 @@ def send_new(servers, i):
                              data={"from": i, "to": j}).text)
 def do_connects(servers):
     for i in servers.keys():
-        threading.Thread(target=send_new, args=(servers,i,)).start()
+        send_new(servers, i)
 
 def get_data():
     response=requests.get("https://n1ce.me/hw/api/data")

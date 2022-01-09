@@ -73,6 +73,11 @@ def get_ends():
             ends.append(i)
     return ends
 
+def update():
+    global servers, targets
+    print(api.update_main(targets))
+    api.do_connects(servers.copy())
+
 def request(msg):
     global servers, targets
     def write_file():
@@ -128,13 +133,15 @@ def request(msg):
         for i in ends:
             text += '- ' * 5 + i + ' -' * 5 + '\n' + find_short_way(start, i) + '\n\n'
         vk.messages.send(peer_id=msg['peer_id'], message=text, random_id=0)
-    elif msg['text'].lower()=='/reset' and msg['from_id'] in [211586351, 298149825,195575331]:
+    elif lst[0].lower()=='/reset' and msg['from_id'] in [211586351, 298149825,195575331]:
         servers={'9184A500': (0, ['9184A501', '9184A502', '9184A503'])}
         targets=[]
         api.delete_data()
         vk.messages.send(peer_id=msg['peer_id'], message='Все сервера удалены', random_id=0)
-
-    elif msg['text'].lower()=='/servers' and msg['from_id'] in [211586351, 298149825, 120358503,195575331]:
+    elif lst[0]=="/update" and msg['from_id'] in [211586351, 298149825, 120358503]:
+        threading.Thread(target=update).start()
+        vk.messages.send(peer_id=msg['peer_id'], message='Обновление запущено', random_id=0)
+    elif lst[0].lower()=='/servers' and msg['from_id'] in [211586351, 298149825, 120358503,195575331]:
         keys=list(servers.keys())
         vk.messages.send(peer_id=msg['peer_id'], message=f'Total: {len(keys)}\n {" ".join(keys)}', random_id=0)
 def chat_reqs(reqs):
@@ -159,9 +166,4 @@ def main():
             vk.storage.set(user_id=298149825, key="key", value=str(longpoll.ts))
         except Exception as e:
             print("Error:", e)
-def update():
-    global servers, targets
-    print(api.update_main(targets))
-    api.do_connects(servers.copy())
-threading.Thread(target=update).start()
 main()

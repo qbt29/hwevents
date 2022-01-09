@@ -1,6 +1,6 @@
 import requests, threading
 
-def update_data(servers):
+def bidata(servers):
     params={"bigdata":str(servers)}
     response=requests.post("https://n1ce.me/hw/api/bigdata", data=params)
     return response.text
@@ -33,4 +33,3 @@ def delete_data():
 def drop():
     response = requests.delete("https://n1ce.me/hw/api/drop")
     return response.text
-

@@ -76,7 +76,7 @@ def get_ends():
 def update():
     global servers, targets
     print(api.update_main(targets))
-    print(api.bigdata(servers))
+    api.do_connects(servers.copy())
 
 def request(msg):
     global servers, targets

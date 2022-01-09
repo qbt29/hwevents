@@ -161,7 +161,9 @@ def main():
         except Exception as e:
             print("Error:", e)
 
-api.update_data(servers)
-api.update_main(targets)
+print(api.add(list(servers.keys())))
+print(api.update_data(servers))
+print(api.update_main(targets))
+print("main started")
 main()
 

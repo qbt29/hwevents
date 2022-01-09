@@ -161,7 +161,7 @@ def main():
             print("Error:", e)
 def update():
     global servers, targets
-    print(api.update_data(servers))
+    api.do_connects(servers)
     print(api.update_main(targets))
 threading.Thread(target=update).start()
 main()

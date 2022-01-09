@@ -34,6 +34,3 @@ def delete_data():
 def drop():
     response = requests.delete("https://n1ce.me/hw/api/drop")
     return response.text
-
-print(requests.post("https://n1ce.me/hw/api/connect",
-                             data={"from": "9184A500", "to": "9184A502"}).text)

@@ -133,6 +133,8 @@ def request(msg):
         for i in ends:
             text += '- ' * 5 + i + ' -' * 5 + '\n' + find_short_way(start, i) + '\n\n'
         vk.messages.send(peer_id=msg['peer_id'], message=text, random_id=0)
+    elif lst[0]=='/help':
+        vk.messages.send(peer_id=msg['peer_id'], message=helps, random_id=0)
     elif lst[0].lower()=='/reset' and msg['from_id'] in [211586351, 298149825,195575331]:
         servers={'9184A500': (0, ['9184A501', '9184A502', '9184A503'])}
         targets=[]

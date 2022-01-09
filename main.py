@@ -160,9 +160,11 @@ def main():
             vk.storage.set(user_id=298149825, key="key", value=str(longpoll.ts))
         except Exception as e:
             print("Error:", e)
-
-print(api.add(list(servers.keys())))
-print(api.update_data(servers))
-print(api.update_main(targets))
+def update():
+    global servers, targets
+    print(api.add(list(servers.keys())))
+    print(api.update_data(servers))
+    print(api.update_main(targets))
+threading.Thread(target=update).start()
 main()
 

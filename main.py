@@ -21,10 +21,10 @@ try:
 except:
     servers={'9184A500': (0, ['9184A501', '9184A502', '9184A503'])}
 
+print(vk.storage.get(key="key", user_id=298149825))
 try:
     longpoll.ts=int(vk.storage.get(key="key", user_id=298149825))
-except Exception as e:
-    print(e)
+except:
     longpoll.ts=None
 
 def find_short_way(start,goal):
@@ -146,7 +146,7 @@ def chat_reqs(reqs):
 def main():
     reqs={}
     while True:
-        try:
+        # try:
             for event in longpoll.check():
                 if event.type == VkBotEventType.MESSAGE_NEW:
                     if event.obj['message']['peer_id'] not in reqs:
@@ -156,9 +156,9 @@ def main():
             for i in reqs.keys():
                 threading.Thread(target=chat_reqs(reqs[i].copy())).start()
             reqs={}
-            vk.storage.set(user_id=298149825, key="key", value=longpoll.ts)
-        except Exception as e:
-            print("Error:", e)
+            vk.storage.set(user_id=298149825, key="key", value=str(longpoll.ts))
+        # except Exception as e:
+        #     print("Error:", e)
 
 api.update_data(servers)
 api.update_main(targets)

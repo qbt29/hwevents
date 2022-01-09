@@ -86,6 +86,7 @@ def request(msg):
         with open("servers.py", "w") as f:
             f.write(str(servers))
             f.write('\n' + str(targets))
+    unique=0
     for message in msg['fwd_messages']:
         text,from_id,date=message['text'],message['from_id'],message['date']
         if from_id!=-172959149:
@@ -97,8 +98,10 @@ def request(msg):
                 if date<=servers[server][0] or servers[server][1]==ways:
                     continue
             servers[server]=date, ways
+            unique+=1
             for i in ways:
                 if i not in servers:
+                    unique+=1
                     servers[i]=(0, [])
             api.send_new(servers, server)
             write_file()
@@ -106,6 +109,8 @@ def request(msg):
             targets=find.copy()
             api.update_main(targets)
             write_file()
+    if unique:
+        vk.messages.send(peer_id=msg['peer_id'], message=f"Получено уникальных серверов: {unique}", random_id=0)
     lst = msg['text'].split()
     if len(lst)==0: return
     if lst[0]=='/w' and len(lst)==3:

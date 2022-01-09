@@ -86,10 +86,7 @@ def request(msg):
         with open("servers.py", "w") as f:
             f.write(str(servers))
             f.write('\n' + str(targets))
-        os.system('git add *.py')
-        os.system('git commit -m "Back up"')
-        os.system("git push https://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@github.com/qbt29/hwevents.git")
-    unique=0
+    unique=[]
     for message in msg['fwd_messages']:
         text,from_id,date=message['text'],message['from_id'],message['date']
         if from_id!=-172959149:
@@ -101,10 +98,10 @@ def request(msg):
                 if date<=servers[server][0] or servers[server][1]==ways:
                     continue
             servers[server]=date, ways
-            unique+=1
+            unique+=[server]
             for i in ways:
                 if i not in servers:
-                    unique+=1
+                    unique+=[i]
                     servers[i]=(0, [])
             api.send_new(servers, server)
             write_file()
@@ -112,8 +109,8 @@ def request(msg):
             targets=find.copy()
             api.update_main(targets)
             write_file()
-    if unique:
-        vk.messages.send(peer_id=msg['peer_id'], message=f"Получено уникальных серверов: {unique}", random_id=0)
+    if unique!=[]:
+        vk.messages.send(peer_id=msg['peer_id'], message=f"Получено {len(unique)} уникальных серверов:\n"+",".join(unique), random_id=0)
     lst = msg['text'].split()
     if len(lst)==0: return
     if lst[0]=='/w' and len(lst)==3:
@@ -135,7 +132,7 @@ def request(msg):
         vk.messages.send(peer_id=msg['peer_id'], message=get_known(targets), random_id=0)
     elif lst[0]=='/e':
         ends=get_ends()
-        vk.messages.send(peer_id=msg['peer_id'], message=f"Total: {len(ends)}\n"+"\n".join(ends)+'\n'+'----------------', random_id=0)
+        vk.messages.send(peer_id=msg['peer_id'], message=f"Total: {len(ends)}\n"+"\n".join(ends)+'\n'+'-------------------', random_id=0)
     elif lst[0]=='/info' and len(lst)==2:
         if lst[1] not in servers and header + lst[1] not in servers: return
         if lst[1] not in servers: lst[1] = header + lst[1]

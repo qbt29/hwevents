@@ -3,11 +3,11 @@ import requests, threading
 def update_data(servers):
     requests.get("https://vk.com")
     params={"bigdata":str(servers)}
-    requests.post("https://n1ce.me/hw/api/bigdata", data=params)
+    return requests.post("https://n1ce.me/hw/api/bigdata", data=params)
 
 def update_main(targets):
     params = {"list": ",".join(targets)}
-    requests.post("https://n1ce.me/hw/api/main", data=params)
+    return requests.post("https://n1ce.me/hw/api/main", data=params)
 
 def send_new(servers, i):
      for j in servers[i][1]:

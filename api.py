@@ -9,6 +9,7 @@ def update_main(targets):
     params = {"list": ",".join(targets)}
     response=requests.post("https://n1ce.me/hw/api/main", data=params)
     return response.text
+
 def send_new(servers, i):
      for j in servers[i][1]:
          print(requests.post("https://n1ce.me/hw/api/connect",

@@ -124,7 +124,7 @@ def request(msg):
         vk.messages.send(peer_id=msg['peer_id'], message=get_known(targets), random_id=0)
     elif lst[0]=='/e':
         ends=get_ends()
-        vk.messages.send(peer_id=msg['peer_id'], message=f"Total: {len(ends)}\n"+"\n".join(ends), random_id=0)
+        vk.messages.send(peer_id=msg['peer_id'], message=f"Total: {len(ends)}\n"+"\n".join(ends)+'-'*10, random_id=0)
     elif lst[0]=='/info' and len(lst)==2:
         if lst[1] not in servers: return
         vk.messages.send(peer_id=msg['peer_id'], message=f"Connects {lst[1]}:\n"+ '\n'.join(servers[lst[1]][1]), random_id=0)
@@ -134,6 +134,9 @@ def request(msg):
         ends=get_ends()
         text=""
         for i in ends:
+            if len(text)>=3000:
+                vk.messages.send(peer_id=msg['peer_id'], message=text, random_id=0)
+                text=""
             text += '- ' * 5 + i + ' -' * 5 + '\n' + find_short_way(start, i) + '\n\n'
         vk.messages.send(peer_id=msg['peer_id'], message=text, random_id=0)
     elif lst[0]=='/help':
@@ -173,3 +176,4 @@ def main():
         except Exception as e:
             print("Error:", e)
 main()
+

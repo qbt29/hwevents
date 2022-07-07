@@ -1,5 +1,4 @@
-import requests, threading
-
+import requests, json
 def bigdata(servers):
     params={"bigdata":str(servers)}
     response=requests.post("https://n1ce.me/hw/api/bigdata", data=params)
@@ -21,16 +20,20 @@ def do_connects(servers):
 
 def get_data():
     response=requests.get("https://n1ce.me/hw/api/data")
-    return response.text
+    return response.json()
 
 def add(servers:list):
     response=requests.post("https://n1ce.me/hw/api/add", data={"ids":servers})
     return response.text
 
-def delete_data():
+def delete_data(vk):
+    vk.messages.send(peer_id=298149825, message="Данные с сайта удалены", random_id=0)
     response = requests.delete("https://n1ce.me/hw/api/clear")
     return response.text
+    pass
 
-def drop():
+def drop(vk):
+    vk.messages.send(peer_id=298149825, message="Данные с сайта удалены полностью", random_id=0)
     response = requests.delete("https://n1ce.me/hw/api/drop")
     return response.text
+    pass

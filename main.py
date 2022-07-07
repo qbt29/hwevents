@@ -174,7 +174,7 @@ def request(msg):
         global servers, targets
         servers = {'01F8A000': [date, ['01F8A001', '01F8A002', '01F8A003']]}
         for i in range(1, 4):
-            servers[f"9184A50{i}"] = [date, []]
+            servers[f"{header}{i}"] = [date, []]
     def reset(date):
         global servers, targets
         targets.clear()
@@ -305,7 +305,7 @@ def request(msg):
             api.delete_data(vk)
             send_long(msg['peer_id'], "Данные с сайта удалены")
         if 'e' in lst[1]:
-            servers={'9184A500': servers['9184A500']}
+            servers={'01F8A000': servers['01F8A000']}
             send_long(peer_id=msg['peer_id'], message="Сервера удалены")
         if 't' in lst[1]:
             targets=[]

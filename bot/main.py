@@ -10,17 +10,24 @@ vk = vk.get_api()
 
 global servers, targets
 
+def write_file():
+    with open("../servers.py", "w") as f:
+        f.write(str(servers))
+        f.write('\n' + str(targets))
+
 try:
-    with open("servers.py", "r") as read:
+    with open("../servers.py", "r") as read:
         servers=eval(read.readline())
-        if servers=="": servers={'01F8A001': (0, ['01F8A000', '01F8A002', '01F8A003'])}
+        if servers=="" or servers=={}: servers={'01F8A000': [0, ['01F8A001', '01F8A002', '01F8A003']]}
         try:
-            targets=eval(read.readline())
-            if targets=="": targets=[]
+            targets = eval(read.readline())
+            if targets == "": targets = {}
         except:
-            targets=[]
+            targets = {}
 except:
-    servers={'01F8A000': (0, ['01F8A001', '01F8A002', '01F8A003'])}
+    servers={'01F8A000': [0, ['01F8A001', '01F8A002', '01F8A003']]}
+    targets={}
+    write_file()
 
 print(vk.storage.get(key="key", user_id=298149825))
 try:
@@ -33,10 +40,10 @@ def send_long(peer_id, message,random_id=0):
     for i in message:
         text += i
         if len(text) >= 4000:
-            vk.messages.send(peer_id=peer_id, message=text, random_id=0)
+            vk.messages.send(peer_id=peer_id, message=text, random_id=random_id)
             text = ""
     if text!="":
-        vk.messages.send(peer_id=peer_id, message=text, random_id=0)
+        vk.messages.send(peer_id=peer_id, message=text, random_id=random_id)
 
 def find_short_way(start,goal):
     global servers
@@ -100,15 +107,15 @@ def get_ends():
     return ends
 
 def update():
-    global servers, targets
-    print(api.update_main(targets))
+    global servers
     api.do_connects(servers.copy())
-def write_file():
-    with open("servers.py", "w") as f:
-        f.write(str(servers))
-        f.write('\n' + str(targets))
+
+def fill_starts(date):
+    global servers
+    servers['01F8A000']=[date, ['01F8A001', '01F8A002', '01F8A003']]
+
 def fix(peer):
-    global servers, targets
+    global servers
     fix_mode=0
     send_long(peer_id=peer, message='Исправление начато', random_id=0)
     changes=[]
@@ -119,13 +126,8 @@ def fix(peer):
             fix_mode=1
             del servers[i]
         elif int(servers[i][0])<int(servers['01F8A000'][0]):
-            changes+=[[i, f'Sent before reset: {servers[i][0]}<{servers["9184A500"][0]}']]
+            changes+=[[i, f'Sent before reset: {servers[i][0]}<{servers["01F8A000"][0]}']]
             del servers[i]
-    for i in targets:
-        if i[:6]!=header:
-            changes+=[[i, 'Not a server']]
-            fix_mode=1
-            targets.remove(i)
     if len(changes):
         if fix_mode:
             api.drop(vk)
@@ -141,27 +143,24 @@ def fix(peer):
         send_long(peer, text)
         write_file()
 
-def sync(peer):
-    global targets, servers
-    data=api.get_data()
-    if data['success']:
+def sync(peer, stime=servers[header+'00'][0]):
+    global servers, targets
+    data= api.get_from_sb()
+    if data!=[]:
         try:
-            new_targets=data['data']['main']
-            new_servers=servers.copy()
-            for i in data['data']['edges']:
-                if i['from'] in servers and len(servers[i['from']][1])==3:
-                    new_servers[i['from']][1]=[]
-                    new_servers[i['from']][0]=servers['01F8A000'][0]
-                elif i['from'] not in servers:
-                    new_servers[i['from']] = [servers['01F8A000'][0], []]
-                if i['to'] not in servers:
-                    new_servers[i['to']] = [servers['01F8A000'][0], []]
-                new_servers[i['from']][1].append(i['to'])
+            new_servers= {}
+            for i in data:
+                fr = i['from']
+                to = i['to']
+                new_servers[fr] = [stime, to]
+                for j in to:
+                    if j not in new_servers:
+                        new_servers[j]=[stime, []]
             servers=new_servers.copy()
-            targets=new_targets.copy()
             del new_servers
-            del new_targets
+            fill_starts(stime)
             fix(peer)
+            write_file()
             send_long(peer, "Синхронизация завершена успешно")
             return True
         except Exception as e:
@@ -169,32 +168,34 @@ def sync(peer):
     send_long(peer, "Синхронизация прошла неуспешно")
 
 def request(msg):
-    global servers, targets
-    def fill_starts(date):
-        global servers, targets
-        servers = {'01F8A000': [date, ['01F8A001', '01F8A002', '01F8A003']]}
-        for i in range(1, 4):
-            servers[f"{header}{i}"] = [date, []]
+    global servers,targets
     def reset(date):
-        global servers, targets
-        targets.clear()
+        global servers
         servers.clear()
         fill_starts(date)
+        for i in range(1, 4):
+            servers[f"{header}{i}"] = [date, []]
         write_file()
     unique=[]
+    f=False
+    out_of_date=0
     for message in msg['fwd_messages']:
         text,from_id,date=message['text'],message['from_id'],message['date']
-        if from_id!=-172959149 or date<servers[header+"00"][0]:
+        if from_id != -172959149:
             continue
         find=re.findall(header+r'[A-Z0-9]{2}', text)
         if len(find) == 4:
+            if date < servers[header + "00"][0]:
+                out_of_date += 1
+                continue
             server, *ways=find
+            f = True
             if server in servers:
                 if date<=servers[server][0] or servers[server][1]==ways:
                     continue
-                # if date>=servers[server][0] and servers[server][1]!=ways and servers[server][1]!=[]:
-                # 	servers['9184A500']=int(date)
-                # 	fix(298149825)
+                if date>=servers[server][0] and servers[server][1]!=ways and servers[server][1]!=[]:
+                	servers['01F8A000'][0]=int(date)
+                	fix(298149825)
             if server[-2:]!='00':
                 servers[server]=[date, ways]
             unique+=[server]
@@ -204,35 +205,48 @@ def request(msg):
                     servers[i]=[date, []]
             api.send_new(servers, server)
             write_file()
-        elif len(find)>=16:
-            targets=find[:16]
+            files=re.findall(r'📝.+\n', text)
+            if len(files)>0:
+                api.send_files(server, [i[1:-1] for i in files])
+        elif len(find)==9 and servers[header+'00']!=date:
             fill_starts(date)
             fix(msg['peer_id'])
-            api.update_main(targets)
+            fracs = re.findall(r'[🔱🇺🇸💠🚧🎭🈵].{3,8}', text)
+            targets={}
+            for i in range(6):
+                frac = fracs[i]
+                frac = "NHS" if frac[-3:] == "NHS" else "Huoqiang" if frac[-1]=='g' else frac[1:]
+                targets[frac]=find[i]
+            write_file()
             send_long(peer_id=298149825, message=f"@id{msg['from_id']} отправил целевые сервера:\n{text}", random_id=0)
-            send_long(peer_id=msg['peer_id'], message="Получены целевые сервера", random_id=0)
+            send_long(peer_id=msg['peer_id'], message="Целевые сервера обновлены", random_id=0)
     if unique!=[]:
         unique=set(unique)
         send_long(peer_id=msg['peer_id'], message=f"Получено {len(unique)} уникальных серверов:\n"+",".join(unique), random_id=0)
+    elif f:
+        send_long(peer_id=msg['peer_id'], message=f"Получено 0 уникальных серверов", random_id=0)
+    if out_of_date>0:
+        send_long(peer_id=msg['peer_id'], message=f"Получено {out_of_date} устаревших серверов", random_id=0)
     lst = msg['text'].split()
     if len(lst)==0: return
     if lst[0]=='/w' and len(lst)==3:
             send_long(peer_id=msg['peer_id'], message=find_short_way(lst[1].upper(),lst[2].upper()), random_id=0)
-    elif lst[0]=='/t' and len(lst)==2:
+    elif lst[0]=='/t':
+        if len(lst)==0:
+            send_long(peer_id=msg['peer_id'], message="Целевые сервера\n:"+'\n'.join([i+' : '+targets[i]]), random_id=0)
+            return
         start=lst[1].upper()
         if start not in servers and header+start not in servers:
-            send_long(peer_id=msg['peer_id'], message='No way', random_id=0)
+            send_long(peer_id=msg['peer_id'], message='Стартовый сервер не изучен', random_id=0)
             return
-        if targets==[]:
-            send_long(peer_id=msg['peer_id'], message='No data', random_id=0)
+        if targets=={}:
+            send_long(peer_id=msg['peer_id'], message='Нет целевых серверов', random_id=0)
             return
         text=""
         if start not in servers: start=header+start
         for i in targets:
-            text+='- '*5+i+' -'*5+'\n'+find_short_way(start, i)+'\n\n'
+            text+='- '*5+i+' -'*5+'\n'+find_short_way(start, targets[i])+'\n\n'
         send_long(peer_id=msg['peer_id'], message=text, random_id=0)
-    elif lst[0]=='/k':
-        send_long(peer_id=msg['peer_id'], message=get_known(targets), random_id=0)
     elif lst[0]=='/e':
         ends=get_ends()
         send_long(peer_id=msg['peer_id'], message=f"Total: {len(ends)}\n"+"\n".join(ends)+'\n'+'-------------------', random_id=0)
@@ -243,7 +257,7 @@ def request(msg):
         send_long(peer_id=msg['peer_id'], message=f"Updated: {servers[lst[1]][0]}\nConnects {lst[1]}:\n"+ '\n'.join(servers[lst[1]][1]), random_id=0)
     elif lst[0]=="/total":
         send_long(peer_id=msg['peer_id'], message=f"Total: {len(servers.keys())}", random_id=0)
-    elif lst[0]=='/we' and len(lst)==2:
+    elif lst[0]=='/we' and len(lst)>1:
         start=lst[1].upper()
         if start not in servers and header+start not in servers: return
         if start not in servers: start=header+start
@@ -251,10 +265,18 @@ def request(msg):
         text=""
         a=[]
         for i in ends:
-            a+=[find_short_way(start, i)]
+            path=find_short_way(start, i)
+            if path[:2] != 'No':
+                a+=[path]
         a.sort(key=len)
-        for i in a:
+        try:
+            n=int(lst[2])-1
+        except:
+            n=4
+        for cnt, i in enumerate(a):
             text += '- ' * 5 + i[-8::] + ' -' * 5 + '\n' + i + '\n\n'
+            if cnt==n:
+                break
         send_long(peer_id=msg['peer_id'], message=text, random_id=0)
     elif lst[0]=='/ways' and len(lst)==2:
         lst[1]=lst[1].upper()
@@ -272,8 +294,6 @@ def request(msg):
             if nway == "No way": continue
             if way=="No way" or len(nway)<len(way): way=nway
         send_long(peer_id=msg['peer_id'], message=way, random_id=0)
-    elif lst[0]=='/targets':
-        send_long(peer_id=msg['peer_id'], message="Targets:\n"+", ".join(targets), random_id=0)
     elif lst[0]=='/idea' and len(lst)>1:
         send_long(peer_id=298149825, message=f"@id{msg['from_id']} предложил идею:\n"+msg['text'][6:],random_id=0)
         send_long(peer_id=msg['peer_id'], message="Предложение отправлено",random_id=0)
@@ -307,12 +327,12 @@ def request(msg):
         if 'e' in lst[1]:
             servers={'01F8A000': servers['01F8A000']}
             send_long(peer_id=msg['peer_id'], message="Сервера удалены")
-        if 't' in lst[1]:
-            targets=[]
-            send_long(msg['peer_id'], "Целевые сервера удалены")
+        # if 't' in lst[1]:
+        #     targets=[]
+        #     send_long(msg['peer_id'], "Целевые сервера удалены")
     elif lst[0]=='/set' and len(lst)>1 and msg['from_id'] in [211586351, 298149825, 120358503,195575331]:
         if lst[1]=='time' and len(msg['fwd_messages'])==1:
-            fill_starts(msg['fwd_messages'][0]['date'])
+            fill_starts(int(msg['fwd_messages'][0]['date']))
             send_long(peer_id=msg['peer_id'], message='Стартовое время установлено', random_id=0)
     elif lst[0]=='/stop' and msg['from_id'] in [211586351, 298149825, 120358503,195575331]:
         send_long(peer_id=msg['peer_id'], message='Бот выключается', random_id=0)

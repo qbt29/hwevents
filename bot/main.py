@@ -26,10 +26,11 @@ try:
             targets = {}
 except:
     servers={'01F8A000': [0, ['01F8A001', '01F8A002', '01F8A003']]}
+    for i in range(1, 4):
+        servers[f'{header}0{i}'] = [0, []]
     targets={}
     write_file()
 
-print(vk.storage.get(key="key", user_id=298149825))
 try:
     longpoll.ts=int(vk.storage.get(key="key", user_id=298149825))
 except:
@@ -45,7 +46,7 @@ def send_long(peer_id, message,random_id=0):
     if text!="":
         vk.messages.send(peer_id=peer_id, message=text, random_id=random_id)
 
-def find_short_way(start,goal, args=[]):
+def find_short_way(start, goal, args=[]):
     global servers
     if start not in servers and header+start in servers: start=header+start
     if goal not in servers and header+goal in servers: goal=header+goal
@@ -112,6 +113,8 @@ def update():
 def fill_starts(date):
     global servers
     servers['01F8A000'][0]=int(date)
+    for i in range(1, 4):
+        servers[f'{header}0{i}'][1] = []
 
 def fix(peer):
     global servers
@@ -144,8 +147,8 @@ def fix(peer):
 
 def sync(peer, stime=servers[header+'00'][0]):
     global servers, targets
-    data= api.get_from_sb()
-    if data!=[]:
+    data = api.get_from_sb()
+    if data != []:
         try:
             new_servers = servers
             new = 0
@@ -280,9 +283,9 @@ def request(msg):
         if start not in servers: start=header+start
         ends=get_ends()
         text=""
-        a=[]
+        a = []
         for i in ends:
-            path=find_short_way(start, i)
+            path = find_short_way(start, i)
             if path[:2] != 'No':
                 a+=[path]
         a.sort(key=len)
@@ -360,10 +363,13 @@ def request(msg):
         send_long(peer_id=msg['peer_id'], message='Данные сайта сброшены', random_id=0)
 
 def chat_reqs(reqs):
-    i=0
-    while i<len(reqs):
-        threading.Thread(target=request(reqs[i].obj['message'])).start()
-        i+=1
+    # try:
+        i=0
+        while i<len(reqs):
+            threading.Thread(target=request(reqs[i].obj['message'])).start()
+            i+=1
+    # except:
+    #     pass
 
 def main():
     reqs={}

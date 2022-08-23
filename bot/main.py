@@ -78,7 +78,6 @@ def dfs(server, unreached, visited):
     global servers
     for i in servers[server][1]:
         if i not in visited:
-            print(i, unreached)
             visited.append(i)
             unreached.remove(i)
             unreached,visited = dfs(i,unreached, visited)
@@ -303,7 +302,6 @@ def request(msg):
         lst[1]=lst[1].upper()
         if lst[1] not in servers and header + lst[1] not in servers: return
         if lst[1] not in servers: lst[1] = header + lst[1]
-        print(lst[1], list(servers.keys()), 1)
         unreached, _ = dfs(lst[1], list(servers.keys()), [])
         send_long(peer_id=msg['peer_id'], message=f"Достижимо {len(servers.keys())-len(unreached)} устройств\nНедостижимо {len(unreached)} устройств:\n" +" ".join(unreached), random_id=0)
     elif lst[0]=='/c' and len(lst)==2:
